@@ -1,29 +1,19 @@
-from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 
 from database import SessionLocal
-from models import JobApplication as JobApplicationModel
-from schemas import (
-    JobApplicationCreate,
-    JobApplicationUpdate,
-    JobApplicationResponse,
-    JobApplicationUpdateResponse,
-    JobApplicationListResponse
-)
 from routes.applications import router as applications_router
-
 
 
 app = FastAPI(
     title="Job Application Tracker API",
-    description="A REST API for tracking and managing job appliations.",
+    description="A REST API for tracking and managing job applications.",
     version="1.0.0"
 )
 
 app.include_router(applications_router)
 
 
-# Database dependency
 def get_db():
     db = SessionLocal()
 
@@ -32,7 +22,7 @@ def get_db():
     finally:
         db.close()
 
-# Home
+
 @app.get("/")
 def home():
     return {
@@ -40,7 +30,6 @@ def home():
     }
 
 
-# Health check
 @app.get("/health")
 def health_check():
     return {
@@ -48,7 +37,6 @@ def health_check():
     }
 
 
-# About
 @app.get("/about")
 def about():
     return {
@@ -57,7 +45,6 @@ def about():
     }
 
 
-# Database test
 @app.get("/db-test")
 def database_test(db: Session = Depends(get_db)):
     return {

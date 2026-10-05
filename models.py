@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Date, Text
 from database import Base
 
 
@@ -11,3 +11,6 @@ class JobApplication(Base):
     status = Column(String, nullable=False)
     salary = Column(Integer, nullable=False)
     experience = Column(Integer, nullable=False)
+    deadline = Column(Date, nullable=True)
+    notes = Column(Text, nullable=True)
+    interview_date = Column(Date, nullable=True)

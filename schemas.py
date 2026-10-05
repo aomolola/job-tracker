@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -15,32 +16,25 @@ class JobApplicationCreate(BaseModel):
     company: str = Field(min_length=1)
     position: str = Field(min_length=1)
     status: ApplicationStatus
-    salary: int = Field(ge=0)
+    salary: float = Field(ge=0)
     experience: int = Field(ge=0)
-
-
-class JobApplicationUpdate(BaseModel):
-    company: str = Field(min_length=1)
-    position: str = Field(min_length=1)
-    status: ApplicationStatus
-    salary: int = Field(ge=0)
-    experience: int = Field(ge=0)
+    deadline: date | None = None
+    notes: str | None = None
+    interview_date: datetime | None = None
 
 
 class JobApplicationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     company: str
     position: str
     status: ApplicationStatus
-    salary: int
+    salary: float
     experience: int
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class JobApplicationUpdateResponse(BaseModel):
-    message: str
-    application: JobApplicationResponse
+    deadline: date | None = None
+    notes: str | None = None
+    interview_date: datetime | None = None
 
 
 class JobApplicationListResponse(BaseModel):
@@ -49,3 +43,19 @@ class JobApplicationListResponse(BaseModel):
     total: int
     total_pages: int
     applications: list[JobApplicationResponse]
+
+
+class JobApplicationUpdate(BaseModel):
+    company: str = Field(min_length=1)
+    position: str = Field(min_length=1)
+    status: ApplicationStatus
+    salary: float = Field(ge=0)
+    experience: int = Field(ge=0)
+    deadline: date | None = None
+    notes: str | None = None
+    interview_date: datetime | None = None
+
+
+class JobApplicationUpdateResponse(BaseModel):
+    message: str
+    application: JobApplicationResponse
