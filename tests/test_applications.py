@@ -387,3 +387,23 @@ def test_update_application_notes():
     assert data["application"]["notes"] == (
         "Interview scheduled with the engineering team."
     )
+
+def test_create_application_with_interview_date():
+    response = client.post(
+        "/applications",
+        json={
+            "company": "Pytest Test Company",
+            "position": "Software Engineer",
+            "status": "Interview",
+            "salary": 95000,
+            "experience": 1,
+            "interview_date": "2026-10-20",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["company"] == "Pytest Test Company"
+    assert data["interview_date"] == "2026-10-20"

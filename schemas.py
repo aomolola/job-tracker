@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -20,7 +20,7 @@ class JobApplicationCreate(BaseModel):
     experience: int = Field(ge=0)
     deadline: date | None = None
     notes: str | None = None
-    interview_date: datetime | None = None
+    interview_date: date | None = None
 
 
 class JobApplicationResponse(BaseModel):
@@ -34,7 +34,7 @@ class JobApplicationResponse(BaseModel):
     experience: int
     deadline: date | None = None
     notes: str | None = None
-    interview_date: datetime | None = None
+    interview_date: date | None = None
 
 
 class JobApplicationListResponse(BaseModel):
@@ -53,7 +53,7 @@ class JobApplicationUpdate(BaseModel):
     experience: int = Field(ge=0)
     deadline: date | None = None
     notes: str | None = None
-    interview_date: datetime | None = None
+    interview_date: date | None = None
 
 
 class JobApplicationUpdateResponse(BaseModel):

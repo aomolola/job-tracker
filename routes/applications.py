@@ -43,6 +43,7 @@ def create_application(
         experience=application.experience,
         deadline=application.deadline,
         notes=application.notes,
+        interview_date=application.interview_date,
     )
 
     db.add(new_application)
@@ -158,6 +159,7 @@ def update_application(
     application.experience = update.experience
     application.deadline = update.deadline
     application.notes = update.notes
+    application.interview_date = update.interview_date
 
     db.commit()
     db.refresh(application)
