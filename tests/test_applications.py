@@ -331,3 +331,59 @@ def test_create_application_with_deadline():
 
     assert data["company"] == "Pytest Test Company"
     assert data["deadline"] == "2026-10-15"
+
+def test_create_application_with_notes():
+    response = client.post(
+        "/applications",
+        json={
+            "company": "Pytest Test Company",
+            "position": "Software Engineer",
+            "status": "Applied",
+            "salary": 95000,
+            "experience": 1,
+            "notes": "Applied through the company careers page.",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["company"] == "Pytest Test Company"
+    assert data["notes"] == "Applied through the company careers page."
+
+def test_update_application_notes():
+    create_response = client.post(
+        "/applications",
+        json={
+            "company": "Pytest Test Company",
+            "position": "Software Engineer",
+            "status": "Applied",
+            "salary": 90000,
+            "experience": 1,
+        },
+    )
+
+    assert create_response.status_code == 200
+
+    application_id = create_response.json()["id"]
+
+    update_response = client.put(
+        f"/applications/{application_id}",
+        json={
+            "company": "Pytest Test Company",
+            "position": "Software Engineer",
+            "status": "Interview",
+            "salary": 90000,
+            "experience": 1,
+            "notes": "Interview scheduled with the engineering team.",
+        },
+    )
+
+    assert update_response.status_code == 200
+
+    data = update_response.json()
+
+    assert data["application"]["notes"] == (
+        "Interview scheduled with the engineering team."
+    )
