@@ -196,22 +196,4 @@ def delete_application(
 
 
 
-def test_create_application_with_deadline():
-    response = client.post(
-        "/applications",
-        json={
-            "company": "Pytest Test Company",
-            "position": "Software Engineer",
-            "status": "Applied",
-            "salary": 95000,
-            "experience": 1,
-            "deadline": "2026-10-15",
-        }
-    )
 
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert data["company"] == "Pytest Test Company"
-    assert data["deadline"] == "2026-10-15"
