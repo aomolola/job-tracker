@@ -109,6 +109,24 @@ def get_applications(
 
 
 @router.get(
+    "/deadlines",
+    response_model=list[JobApplicationResponse],
+)
+def get_upcoming_deadlines(
+    db: Session = Depends(get_db),
+):
+    from datetime import date
+
+    applications = (
+        db.query(JobApplicationModel)
+        .filter(JobApplicationModel.deadline >= date.today())
+        .order_by(JobApplicationModel.deadline.asc())
+        .all()
+    )
+
+    return applications
+
+@router.get(
     "/{application_id}",
     response_model=JobApplicationResponse,
 )

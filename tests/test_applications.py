@@ -407,3 +407,66 @@ def test_create_application_with_interview_date():
 
     assert data["company"] == "Pytest Test Company"
     assert data["interview_date"] == "2026-10-20"
+
+
+def test_get_upcoming_deadlines():
+    client.post(
+        "/applications",
+        json={
+            "company": "Past Deadline Company",
+            "position": "Software Engineer",
+            "status": "Applied",
+            "salary": 90000,
+            "experience": 1,
+            "deadline": "2020-01-01",
+        },
+    )
+
+    client.post(
+        "/applications",
+        json={
+            "company": "Later Deadline Company",
+            "position": "Backend Engineer",
+            "status": "Applied",
+            "salary": 100000,
+            "experience": 2,
+            "deadline": "2099-12-31",
+        },
+    )
+
+    client.post(
+        "/applications",
+        json={
+            "company": "Sooner Deadline Company",
+            "position": "Python Developer",
+            "status": "Applied",
+            "salary": 95000,
+            "experience": 1,
+            "deadline": "2099-01-01",
+        },
+    )
+
+    response = client.get("/applications/deadlines")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    companies = [
+        application["company"]
+        for application in data
+    ]
+
+    assert "Past Deadline Company" not in companies
+    assert "Sooner Deadline Company" in companies
+    assert "Later Deadline Company" in companies
+
+    sooner_index = companies.index(
+        "Sooner Deadline Company"
+    )
+
+    later_index = companies.index(
+        "Later Deadline Company"
+    )
+
+    assert sooner_index < later_index
