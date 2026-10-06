@@ -518,3 +518,49 @@ def test_get_applications_sorted_by_deadline():
     )
 
     assert sooner_index < later_index
+
+def test_get_applications_sorted_by_company():
+    client.post(
+        "/applications",
+        json={
+            "company": "Zebra Technologies",
+            "position": "Backend Engineer",
+            "status": "Applied",
+            "salary": 100000,
+            "experience": 2,
+        },
+    )
+
+    client.post(
+        "/applications",
+        json={
+            "company": "Acme Corporation",
+            "position": "Python Developer",
+            "status": "Applied",
+            "salary": 95000,
+            "experience": 1,
+        },
+    )
+
+    response = client.get(
+        "/applications?sort_by=company&limit=100"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    companies = [
+        application["company"]
+        for application in data["applications"]
+    ]
+
+    acme_index = companies.index(
+        "Acme Corporation"
+    )
+
+    zebra_index = companies.index(
+        "Zebra Technologies"
+    )
+
+    assert acme_index < zebra_index

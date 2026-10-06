@@ -92,6 +92,11 @@ def get_applications(
             JobApplicationModel.deadline.asc()
         )
 
+    if sort_by == "company":
+        query = query.order_by(
+            JobApplicationModel.company.asc()
+        )
+
     total = query.count()
 
     offset = (page - 1) * limit
