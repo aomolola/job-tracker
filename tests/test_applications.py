@@ -470,3 +470,51 @@ def test_get_upcoming_deadlines():
     )
 
     assert sooner_index < later_index
+
+def test_get_applications_sorted_by_deadline():
+    client.post(
+        "/applications",
+        json={
+            "company": "Later Deadline Company",
+            "position": "Backend Engineer",
+            "status": "Applied",
+            "salary": 100000,
+            "experience": 2,
+            "deadline": "2099-12-31",
+        },
+    )
+
+    client.post(
+        "/applications",
+        json={
+            "company": "Sooner Deadline Company",
+            "position": "Python Developer",
+            "status": "Applied",
+            "salary": 95000,
+            "experience": 1,
+            "deadline": "2099-01-01",
+        },
+    )
+
+    response = client.get(
+        "/applications?sort_by=deadline&limit=100"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    companies = [
+        application["company"]
+        for application in data["applications"]
+    ]
+
+    sooner_index = companies.index(
+        "Sooner Deadline Company"
+    )
+
+    later_index = companies.index(
+        "Later Deadline Company"
+    )
+
+    assert sooner_index < later_index

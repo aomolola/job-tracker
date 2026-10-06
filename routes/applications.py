@@ -61,6 +61,7 @@ def get_applications(
     status: str | None = None,
     company: str | None = None,
     search: str | None = None,
+    sort_by: str | None = None,
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
@@ -84,6 +85,11 @@ def get_applications(
             (JobApplicationModel.company.ilike(search_term))
             |
             (JobApplicationModel.position.ilike(search_term))
+        )
+
+    if sort_by == "deadline":
+        query = query.order_by(
+            JobApplicationModel.deadline.asc()
         )
 
     total = query.count()
