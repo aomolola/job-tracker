@@ -4,6 +4,7 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
 
 
+
 class ApplicationStatus(str, Enum):
     APPLIED = "Applied"
     INTERVIEW = "Interview"
@@ -59,3 +60,24 @@ class JobApplicationUpdate(BaseModel):
 class JobApplicationUpdateResponse(BaseModel):
     message: str
     application: JobApplicationResponse
+
+
+
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str

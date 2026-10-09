@@ -1,14 +1,8 @@
-from fastapi.testclient import TestClient
-
-from main import app
 
 
-client = TestClient(app)
-
-
-def test_create_application():
-    response = client.post(
-        "/applications",
+def test_create_application(app_client):
+    response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -29,8 +23,8 @@ def test_create_application():
     assert data["experience"] == 1
 
 
-def test_get_applications():
-    response = client.get("/applications")
+def test_get_applications(app_client):
+    response = app_client.get("/api/v1/applications")
 
     assert response.status_code == 200
 
@@ -46,9 +40,9 @@ def test_get_applications():
     assert data["limit"] == 10
     assert isinstance(data["applications"], list)
 
-def test_get_application():
-    create_response = client.post(
-        "/applications",
+def test_get_application(app_client):
+    create_response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Backend Engineer",
@@ -62,8 +56,8 @@ def test_get_application():
 
     application_id = create_response.json()["id"]
 
-    response = client.get(
-        f"/applications/{application_id}"
+    response = app_client.get(
+        f"/api/v1/applications/{application_id}"
     )
 
     assert response.status_code == 200
@@ -77,8 +71,8 @@ def test_get_application():
     assert data["salary"] == 100000
     assert data["experience"] == 2
 
-def test_get_application_not_found():
-    response = client.get("/applications/999999")
+def test_get_application_not_found(app_client):
+    response = app_client.get("/api/v1/applications/999999")
 
     assert response.status_code == 404
     assert response.json() == {
@@ -86,9 +80,9 @@ def test_get_application_not_found():
     }
 
 
-def test_update_application():
-    create_response = client.post(
-        "/applications",
+def test_update_application(app_client):
+    create_response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -102,8 +96,8 @@ def test_update_application():
 
     application_id = create_response.json()["id"]
 
-    update_response = client.put(
-        f"/applications/{application_id}",
+    update_response = app_client.put(
+        f"/api/v1/applications/{application_id}",
         json={
             "company": "Pytest Test Company",
             "position": "Senior Software Engineer",
@@ -125,9 +119,9 @@ def test_update_application():
     assert data["application"]["experience"] == 3
 
 
-def test_delete_application():
-    create_response = client.post(
-        "/applications",
+def test_delete_application(app_client):
+    create_response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -141,8 +135,8 @@ def test_delete_application():
 
     application_id = create_response.json()["id"]
 
-    delete_response = client.delete(
-        f"/applications/{application_id}"
+    delete_response = app_client.delete(
+        f"/api/v1/applications/{application_id}"
     )
 
     assert delete_response.status_code == 200
@@ -151,8 +145,8 @@ def test_delete_application():
         "message": "Application deleted successfully"
     }
 
-    get_response = client.get(
-        f"/applications/{application_id}"
+    get_response = app_client.get(
+        f"/api/v1/applications/{application_id}"
     )
 
     assert get_response.status_code == 404
@@ -161,17 +155,17 @@ def test_delete_application():
     }
 
 
-def test_delete_application_not_found():
-    response = client.delete("/applications/999999")
+def test_delete_application_not_found(app_client):
+    response = app_client.delete("/api/v1/applications/999999")
 
     assert response.status_code == 404
     assert response.json() == {
         "detail": "Application not found"
     }
 
-def test_create_application_negative_salary():
-    response = client.post(
-        "/applications",
+def test_create_application_negative_salary(app_client):
+    response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -185,9 +179,9 @@ def test_create_application_negative_salary():
 
 
 
-def test_create_application_invalid_status():
-    response = client.post(
-        "/applications",
+def test_create_application_invalid_status(app_client):
+    response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -201,9 +195,9 @@ def test_create_application_invalid_status():
 
 
 
-def test_create_application_missing_field():
-    response = client.post(
-        "/applications",
+def test_create_application_missing_field(app_client):
+    response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -215,9 +209,9 @@ def test_create_application_missing_field():
     assert response.status_code == 422
 
 
-def test_filter_applications_by_status():
-    response = client.get(
-        "/applications?status=Interview"
+def test_filter_applications_by_status(app_client):
+    response = app_client.get(
+        "/api/v1/applications?status=Interview"
     )
 
     assert response.status_code == 200
@@ -227,9 +221,9 @@ def test_filter_applications_by_status():
     for application in data["applications"]:
         assert application["status"] == "Interview"
 
-def test_filter_applications_by_company():
-    response = client.get(
-        "/applications?company=Google"
+def test_filter_applications_by_company(app_client):
+    response = app_client.get(
+        "/api/v1/applications?company=Google"
     )
 
     assert response.status_code == 200
@@ -239,9 +233,9 @@ def test_filter_applications_by_company():
     for application in data["applications"]:
         assert application["company"] == "Google"
     
-def test_search_applications():
-    response = client.get(
-        "/applications?search=developer"
+def test_search_applications(app_client):
+    response = app_client.get(
+        "/api/v1/applications?search=developer"
     )
 
     assert response.status_code == 200
@@ -258,9 +252,9 @@ def test_search_applications():
         )
 
 
-def test_application_pagination():
-    response = client.get(
-        "/applications?page=1&limit=2"
+def test_application_pagination(app_client):
+    response = app_client.get(
+        "/api/v1/applications?page=1&limit=2"
     )
 
     assert response.status_code == 200
@@ -274,9 +268,9 @@ def test_application_pagination():
     assert data["total_pages"] >= 0
 
 
-def test_application_pagination_page_two():
-    response = client.get(
-        "/applications?page=2&limit=2"
+def test_application_pagination_page_two(app_client):
+    response = app_client.get(
+        "/api/v1/applications?page=2&limit=2"
     )
 
     assert response.status_code == 200
@@ -290,9 +284,9 @@ def test_application_pagination_page_two():
     assert data["total_pages"] >= 0
 
 
-def test_create_application_negative_experience():
-    response = client.post(
-        "/applications",
+def test_create_application_negative_experience(app_client):
+    response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -305,16 +299,16 @@ def test_create_application_negative_experience():
     assert response.status_code == 422
 
 
-def test_application_pagination_invalid_parameters():
-    response = client.get(
-        "/applications?page=0&limit=101"
+def test_application_pagination_invalid_parameters(app_client):
+    response = app_client.get(
+        "/api/v1/applications?page=0&limit=101"
     )
 
     assert response.status_code == 422
 
-def test_create_application_with_deadline():
-    response = client.post(
-        "/applications",
+def test_create_application_with_deadline(app_client):
+    response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -332,9 +326,9 @@ def test_create_application_with_deadline():
     assert data["company"] == "Pytest Test Company"
     assert data["deadline"] == "2026-10-15"
 
-def test_create_application_with_notes():
-    response = client.post(
-        "/applications",
+def test_create_application_with_notes(app_client):
+    response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -352,9 +346,9 @@ def test_create_application_with_notes():
     assert data["company"] == "Pytest Test Company"
     assert data["notes"] == "Applied through the company careers page."
 
-def test_update_application_notes():
-    create_response = client.post(
-        "/applications",
+def test_update_application_notes(app_client):
+    create_response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -368,8 +362,8 @@ def test_update_application_notes():
 
     application_id = create_response.json()["id"]
 
-    update_response = client.put(
-        f"/applications/{application_id}",
+    update_response = app_client.put(
+        f"/api/v1/applications/{application_id}",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -388,9 +382,9 @@ def test_update_application_notes():
         "Interview scheduled with the engineering team."
     )
 
-def test_create_application_with_interview_date():
-    response = client.post(
-        "/applications",
+def test_create_application_with_interview_date(app_client):
+    response = app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Pytest Test Company",
             "position": "Software Engineer",
@@ -409,9 +403,9 @@ def test_create_application_with_interview_date():
     assert data["interview_date"] == "2026-10-20"
 
 
-def test_get_upcoming_deadlines():
-    client.post(
-        "/applications",
+def test_get_upcoming_deadlines(app_client):
+    app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Past Deadline Company",
             "position": "Software Engineer",
@@ -422,8 +416,8 @@ def test_get_upcoming_deadlines():
         },
     )
 
-    client.post(
-        "/applications",
+    app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Later Deadline Company",
             "position": "Backend Engineer",
@@ -434,8 +428,8 @@ def test_get_upcoming_deadlines():
         },
     )
 
-    client.post(
-        "/applications",
+    app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Sooner Deadline Company",
             "position": "Python Developer",
@@ -446,7 +440,7 @@ def test_get_upcoming_deadlines():
         },
     )
 
-    response = client.get("/applications/deadlines")
+    response = app_client.get("/api/v1/applications/deadlines")
 
     assert response.status_code == 200
 
@@ -471,9 +465,9 @@ def test_get_upcoming_deadlines():
 
     assert sooner_index < later_index
 
-def test_get_applications_sorted_by_deadline():
-    client.post(
-        "/applications",
+def test_get_applications_sorted_by_deadline(app_client):
+    app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Later Deadline Company",
             "position": "Backend Engineer",
@@ -484,8 +478,8 @@ def test_get_applications_sorted_by_deadline():
         },
     )
 
-    client.post(
-        "/applications",
+    app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Sooner Deadline Company",
             "position": "Python Developer",
@@ -496,8 +490,8 @@ def test_get_applications_sorted_by_deadline():
         },
     )
 
-    response = client.get(
-        "/applications?sort_by=deadline&limit=100"
+    response = app_client.get(
+        "/api/v1/applications?sort_by=deadline&limit=100"
     )
 
     assert response.status_code == 200
@@ -519,9 +513,9 @@ def test_get_applications_sorted_by_deadline():
 
     assert sooner_index < later_index
 
-def test_get_applications_sorted_by_company():
-    client.post(
-        "/applications",
+def test_get_applications_sorted_by_company(app_client):
+    app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Zebra Technologies",
             "position": "Backend Engineer",
@@ -531,8 +525,8 @@ def test_get_applications_sorted_by_company():
         },
     )
 
-    client.post(
-        "/applications",
+    app_client.post(
+        "/api/v1/applications",
         json={
             "company": "Acme Corporation",
             "position": "Python Developer",
@@ -542,8 +536,8 @@ def test_get_applications_sorted_by_company():
         },
     )
 
-    response = client.get(
-        "/applications?sort_by=company&limit=100"
+    response = app_client.get(
+        "/api/v1/applications?sort_by=company&limit=100"
     )
 
     assert response.status_code == 200
@@ -564,3 +558,163 @@ def test_get_applications_sorted_by_company():
     )
 
     assert acme_index < zebra_index
+def test_user_cannot_access_another_users_application(app_client):
+    # User A creates an application.
+    create_response = app_client.post(
+        "/api/v1/applications",
+        json={
+            "company": "Private Company",
+            "position": "Backend Engineer",
+            "status": "Applied",
+            "salary": 100000,
+            "experience": 2,
+        },
+    )
+
+    assert create_response.status_code == 200
+    application_id = create_response.json()["id"]
+
+    # Register User B.
+    register_response = app_client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "second-user@example.com",
+            "password": "another-secure-password",
+        },
+    )
+
+    assert register_response.status_code == 201
+
+    # Log in as User B.
+    login_response = app_client.post(
+        "/api/v1/auth/login",
+        data={
+            "username": "second-user@example.com",
+            "password": "another-secure-password",
+        },
+    )
+
+    assert login_response.status_code == 200
+    second_user_token = login_response.json()["access_token"]
+
+    # Switch the client to User B.
+    app_client.headers.update(
+        {"Authorization": f"Bearer {second_user_token}"}
+    )
+
+    # User B must not be able to access User A's application.
+    response = app_client.get(
+        f"/api/v1/applications/{application_id}"
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Application not found"
+
+
+def test_user_cannot_update_another_users_application(app_client):
+    # User A creates an application.
+    create_response = app_client.post(
+        "/api/v1/applications",
+        json={
+            "company": "Private Company",
+            "position": "Backend Engineer",
+            "status": "Applied",
+            "salary": 100000,
+            "experience": 2,
+        },
+    )
+    assert create_response.status_code == 200
+    application_id = create_response.json()["id"]
+
+    # Register and log in as User B.
+    register_response = app_client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "update-user@example.com",
+            "password": "another-secure-password",
+        },
+    )
+    assert register_response.status_code == 201
+
+    login_response = app_client.post(
+        "/api/v1/auth/login",
+        data={
+            "username": "update-user@example.com",
+            "password": "another-secure-password",
+        },
+    )
+    assert login_response.status_code == 200
+
+    app_client.headers.update(
+        {
+            "Authorization": (
+                f"Bearer {login_response.json()['access_token']}"
+            )
+        }
+    )
+
+    # User B attempts to update User A's application.
+    response = app_client.put(
+        f"/api/v1/applications/{application_id}",
+        json={
+            "company": "Stolen Company",
+            "position": "CEO",
+            "status": "Applied",
+            "salary": 999999,
+            "experience": 10,
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Application not found"
+
+
+def test_user_cannot_delete_another_users_application(app_client):
+    # User A creates an application.
+    create_response = app_client.post(
+        "/api/v1/applications",
+        json={
+            "company": "Protected Company",
+            "position": "Software Engineer",
+            "status": "Applied",
+            "salary": 85000,
+            "experience": 2,
+        },
+    )
+    assert create_response.status_code == 200
+    application_id = create_response.json()["id"]
+
+    # Register and log in as User B.
+    register_response = app_client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "delete-user@example.com",
+            "password": "another-secure-password",
+        },
+    )
+    assert register_response.status_code == 201
+
+    login_response = app_client.post(
+        "/api/v1/auth/login",
+        data={
+            "username": "delete-user@example.com",
+            "password": "another-secure-password",
+        },
+    )
+    assert login_response.status_code == 200
+
+    app_client.headers.update(
+        {
+            "Authorization": (
+                f"Bearer {login_response.json()['access_token']}"
+            )
+        }
+    )
+
+    # User B attempts to delete User A's application.
+    response = app_client.delete(
+        f"/api/v1/applications/{application_id}"
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Application not found"

@@ -1,8 +1,13 @@
+
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from auth.dependencies import get_current_user
 from database import SessionLocal
 from models import JobApplication as JobApplicationModel
+from models import User
 from schemas import (
     JobApplicationCreate,
     JobApplicationResponse,
@@ -12,15 +17,16 @@ from schemas import (
 )
 
 
+version = "v1"
+
 router = APIRouter(
-    prefix="/applications",
+    prefix=f"/api/{version}/applications",
     tags=["Applications"],
 )
 
 
 def get_db():
     db = SessionLocal()
-
     try:
         yield db
     finally:
@@ -34,8 +40,10 @@ def get_db():
 def create_application(
     application: JobApplicationCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     new_application = JobApplicationModel(
+        user_id=current_user.id,
         company=application.company,
         position=application.position,
         status=application.status,
@@ -65,8 +73,11 @@ def get_applications(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    query = db.query(JobApplicationModel)
+    query = db.query(JobApplicationModel).filter(
+        JobApplicationModel.user_id == current_user.id
+    )
 
     if status:
         query = query.filter(
@@ -80,25 +91,21 @@ def get_applications(
 
     if search:
         search_term = f"%{search}%"
-
         query = query.filter(
             (JobApplicationModel.company.ilike(search_term))
-            |
-            (JobApplicationModel.position.ilike(search_term))
+            | (JobApplicationModel.position.ilike(search_term))
         )
 
     if sort_by == "deadline":
         query = query.order_by(
             JobApplicationModel.deadline.asc()
         )
-
-    if sort_by == "company":
+    elif sort_by == "company":
         query = query.order_by(
             JobApplicationModel.company.asc()
         )
 
     total = query.count()
-
     offset = (page - 1) * limit
 
     applications = (
@@ -125,17 +132,22 @@ def get_applications(
 )
 def get_upcoming_deadlines(
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    from datetime import date
-
     applications = (
         db.query(JobApplicationModel)
-        .filter(JobApplicationModel.deadline >= date.today())
-        .order_by(JobApplicationModel.deadline.asc())
+        .filter(
+            JobApplicationModel.user_id == current_user.id,
+            JobApplicationModel.deadline >= date.today(),
+        )
+        .order_by(
+            JobApplicationModel.deadline.asc()
+        )
         .all()
     )
 
     return applications
+
 
 @router.get(
     "/{application_id}",
@@ -144,10 +156,14 @@ def get_upcoming_deadlines(
 def get_application(
     application_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     application = (
         db.query(JobApplicationModel)
-        .filter(JobApplicationModel.id == application_id)
+        .filter(
+            JobApplicationModel.id == application_id,
+            JobApplicationModel.user_id == current_user.id,
+        )
         .first()
     )
 
@@ -168,10 +184,14 @@ def update_application(
     application_id: int,
     update: JobApplicationUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     application = (
         db.query(JobApplicationModel)
-        .filter(JobApplicationModel.id == application_id)
+        .filter(
+            JobApplicationModel.id == application_id,
+            JobApplicationModel.user_id == current_user.id,
+        )
         .first()
     )
 
@@ -205,10 +225,14 @@ def update_application(
 def delete_application(
     application_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     application = (
         db.query(JobApplicationModel)
-        .filter(JobApplicationModel.id == application_id)
+        .filter(
+            JobApplicationModel.id == application_id,
+            JobApplicationModel.user_id == current_user.id,
+        )
         .first()
     )
 
@@ -224,7 +248,3 @@ def delete_application(
     return {
         "message": "Application deleted successfully",
     }
-
-
-
-

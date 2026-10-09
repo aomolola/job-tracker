@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from database import SessionLocal
 from routes.applications import router as applications_router
+from auth.routes import router as auth_router
 
 
 app = FastAPI(
@@ -12,7 +13,7 @@ app = FastAPI(
 )
 
 app.include_router(applications_router)
-
+app.include_router(auth_router)
 
 def get_db():
     db = SessionLocal()
