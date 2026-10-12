@@ -4,3 +4,4 @@ venv/
 __pycache__/
 *.pyc
 job_tracker_test_backup.dump
+backups/
